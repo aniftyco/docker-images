@@ -1,8 +1,11 @@
 ARG ALPINE_VERSION="3.19"
+ARG CADDY_VERSION="2.7"
 ARG PHP_VERSION="8.3"
-ARG CADDY_VERSION="2.8"
+ARG COMPOSER_VERSION="2.7"
 
 FROM alpine:${ALPINE_VERSION}
+ARG CADDY_VERSION
+ARG COMPOSER_VERSION
 LABEL Maintainer="NiftyCo, LLC <support@aniftyco.com>"
 LABEL Description="Lightweight Alpine Linux container with Caddy & PHP"
 
@@ -10,7 +13,8 @@ WORKDIR /app
 
 RUN apk add --no-cache \
   curl \
-  caddy \
+  caddy=~${CADDY_VERSION} \
+  composer=~${COMPOSER_VERSION} \
   php83 \
   php83-ctype \
   php83-curl \
@@ -33,35 +37,24 @@ RUN apk add --no-cache \
   php83-xmlwriter \
   supervisor
 
-# Configure Caddy
 COPY Caddyfile /etc/caddy/Caddyfile
 
-# Configure PHP-FPM
 ENV PHP_INI_DIR /etc/php83
 COPY fpm-pool.conf ${PHP_INI_DIR}/php-fpm.d/www.conf
 COPY php.ini ${PHP_INI_DIR}/conf.d/custom.ini
 
-# Configure Supervisord
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Make sure files/folders needed by the processes are accessable when they run under the nobody user
-RUN chown -R nobody.nobody /app /run
+RUN mkdir -p /.composer && chown -R nobody.nobody /.composer
+RUN chown -R nobody.nobody /app /run /.composer
 
-# Create symlink for php
-RUN ln -s /usr/bin/php83 /usr/bin/php
-
-# Copy entrypoint script
 COPY entrypoint.sh /usr/bin/entrypoint
 RUN chmod +x /usr/bin/entrypoint
 
-# Switch to use a non-root user from here on
 USER nobody
 
-# Add application
 COPY --chown=nobody index.php /app/
 
-# Expose the port nginx is reachable on
 EXPOSE 8080
 
-# Set entrypoint script
 ENTRYPOINT ["/usr/bin/entrypoint"]
