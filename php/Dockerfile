@@ -3,6 +3,8 @@ ARG CADDY_VERSION="2.7"
 ARG PHP_VERSION="8.3"
 ARG COMPOSER_VERSION="2.7"
 
+FROM composer:${COMPOSER_VERSION} AS composer
+
 FROM alpine:${ALPINE_VERSION}
 ARG CADDY_VERSION
 ARG COMPOSER_VERSION
@@ -14,7 +16,6 @@ WORKDIR /app
 RUN apk add --no-cache \
   curl \
   caddy=~${CADDY_VERSION} \
-  composer=~${COMPOSER_VERSION} \
   php83 \
   php83-ctype \
   php83-curl \
@@ -42,6 +43,9 @@ COPY Caddyfile /etc/caddy/Caddyfile
 ENV PHP_INI_DIR /etc/php83
 COPY fpm-pool.conf ${PHP_INI_DIR}/php-fpm.d/www.conf
 COPY php.ini ${PHP_INI_DIR}/conf.d/custom.ini
+RUN ln -s /usr/bin/php83 /usr/bin/php
+
+COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
