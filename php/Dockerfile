@@ -43,7 +43,7 @@ RUN apk add --no-cache \
 
 COPY Caddyfile /etc/caddy/Caddyfile
 
-ENV PHP_INI_DIR /etc/php83
+ENV PHP_INI_DIR="/etc/php83"
 COPY fpm-pool.conf ${PHP_INI_DIR}/php-fpm.d/www.conf
 COPY php.ini ${PHP_INI_DIR}/conf.d/custom.ini
 RUN ln -s /usr/bin/php83 /usr/bin/php
