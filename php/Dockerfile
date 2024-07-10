@@ -20,6 +20,7 @@ RUN apk add --no-cache \
   php83-ctype \
   php83-curl \
   php83-dom \
+  php83-exif \
   php83-fileinfo \
   php83-fpm \
   php83-gd \
@@ -32,10 +33,12 @@ RUN apk add --no-cache \
   php83-pgsql \
   php83-phar \
   php83-session \
+  php83-simplexml \
   php83-tokenizer \
   php83-xml \
   php83-xmlreader \
   php83-xmlwriter \
+  php83-zip \
   supervisor
 
 COPY Caddyfile /etc/caddy/Caddyfile
@@ -49,8 +52,11 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-RUN mkdir -p /.composer && chown -R nobody.nobody /.composer
-RUN chown -R nobody.nobody /app /run /.composer
+RUN mkdir -p /.composer && \
+    mkdir -p /.config && \
+    mkdir -p /.cache && \
+    mkdir -p /.local
+RUN chown -R nobody.nobody /app /run /.composer /.config /.cache /.local
 
 COPY entrypoint.sh /usr/bin/entrypoint
 RUN chmod +x /usr/bin/entrypoint
