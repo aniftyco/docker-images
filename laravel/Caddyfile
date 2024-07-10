@@ -1,6 +1,14 @@
-:8080
-root * /app/public
-encode zstd gzip
-file_server
-php_fastcgi unix//run/php-fpm.sock
-header -Server
+{
+	servers {
+		trusted_proxies static private_ranges
+		client_ip_headers X-Forwarded-For X-Real-IP
+	}
+}
+
+:8080 {
+	root * /app/public
+	encode zstd gzip
+	file_server
+	header -Server
+	php_fastcgi unix//run/php-fpm.sock
+}
