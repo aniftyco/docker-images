@@ -12,8 +12,8 @@ jobs:
         include:
           - image: aniftyco/php
             context: php
-          - image: aniftyco/laravel
-            context: laravel
+          # - image: aniftyco/laravel
+          #   context: laravel
     steps:
       - name: Checkout
         uses: actions/checkout@v3
